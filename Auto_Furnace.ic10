@@ -1,0 +1,17 @@
+move
+
+
+CheckFurnacePressure:
+l r0 d0 Pressure # Get furnace pressure in kPa
+l r1 d1 Setting # Get pressure dial setting kPa
+
+bge r0 r1 StopFurnacePressure # If furnace pressure(kpa) is >= dial setting(kpa) then StopFurnacePressure
+blt r0 r1 StartFurnacePressure # If furnace pressure(kpa) is < dial setting(kpa) then StartFurnacePressure
+
+StopFurnacePressure:
+s d2 On 0 # Turn off Furnace Pres Reg
+j CheckFurnacePressure
+
+StartFurnacePressure:
+s d2 On 1 # Turn on Furnace Pres Reg
+j CheckFurnacePressure
