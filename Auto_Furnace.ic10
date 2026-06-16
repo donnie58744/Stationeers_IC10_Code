@@ -1,17 +1,405 @@
-move
+# MAKE SURE FIRST RUN OF IC FURNACE IS COMPLETLY FLUSHED
 
+# Devices
+alias Furnace d0
+alias OreReadySwitch d1
+alias RecipeSelectionDial d3
+alias AutoFurnaceSwitch d4
 
-CheckFurnacePressure:
-l r0 d0 Pressure # Get furnace pressure in kPa
-l r1 d1 Setting # Get pressure dial setting kPa
+# Vars
+alias FurnacePres r0 # furnace pressure in (kPa)
+alias FurnaceTemp r1 # furnace temp in (k)
+alias AutoFurnaceSwitchState r2 # State of AutoFurnaceSwitch
+alias OreReadySwitchState r6 # State of OreReadyButton
 
-bge r0 r1 StopFurnacePressure # If furnace pressure(kpa) is >= dial setting(kpa) then StopFurnacePressure
-blt r0 r1 StartFurnacePressure # If furnace pressure(kpa) is < dial setting(kpa) then StartFurnacePressure
+define RECIPE_SILICON 0
+define RECIPE_IRON 1
+define RECIPE_GOLD 2
+define RECIPE_COPPER 3
+define RECIPE_SILVER 4
+define RECIPE_LEAD 5
+define RECIPE_NICKEL 6
+define RECIPE_STEEL 7
+define RECIPE_ELECTRUM 8
+define RECIPE_INVAR 9
+define RECIPE_CONSTANTAN 10
+define RECIPE_SOLDER 11
+define RECIPE_ASTROLOY 12
+define RECIPE_HASTELLOY 13
+define RECIPE_INCONEL 14
+define RECIPE_WASPALOY 15
+define RECIPE_STELLITE 16
 
-StopFurnacePressure:
-s d2 On 0 # Turn off Furnace Pres Reg
-j CheckFurnacePressure
+# NEED TO DO TEST TO MAKE SURE FUEL IS CORRECT
 
-StartFurnacePressure:
-s d2 On 1 # Turn on Furnace Pres Reg
-j CheckFurnacePressure
+# Silicon
+define SiliconPressMin 100
+define SiliconPressMax 100000
+define SiliconTempMin 900
+define SiliconTempMax 100000
+define SiliconFuelPress 300
+
+# Iron
+define IronPressMin 100
+define IronPressMax 100000
+define IronTempMin 800
+define IronTempMax 100000
+define IronFuelPress 300
+
+# Gold
+define GoldPressMin 100
+define GoldPressMax 100000
+define GoldTempMin 600
+define GoldTempMax 100000
+define GoldFuelPress 300
+
+# Copper
+define CopperPressMin 100
+define CopperPressMax 100000
+define CopperTempMin 600
+define CopperTempMax 100000
+define CopperFuelPress 300
+
+# Silver
+define SilverPressMin 100
+define SilverPressMax 100000
+define SilverTempMin 600
+define SilverTempMax 100000
+define SilverFuelPress 300
+
+# Lead
+define LeadPressMin 100
+define LeadPressMax 100000
+define LeadTempMin 400
+define LeadTempMax 100000
+define LeadFuelPress 300
+
+# Nickel
+define NickelPressMin 100
+define NickelPressMax 100000
+define NickelTempMin 800
+define NickelTempMax 100000
+define NickelFuelPress 300
+
+# Steel
+define SteelPressMin 1000
+define SteelPressMax 100000
+define SteelTempMin 900
+define SteelTempMax 100000
+define SteelFuelPress 2700
+
+# Electrum
+define ElectrumPressMin 800
+define ElectrumPressMax 2400
+define ElectrumTempMin 600
+define ElectrumTempMax 100000
+define ElectrumFuelPress 250
+
+# Invar # NEEDS PRESSURANT
+define InvarPressMin 18000
+define InvarPressMax 20000
+define InvarTempMin 1200
+define InvarTempMax 1500
+
+# Constantan
+define ConstantanPressMin 20000
+define ConstantanPressMax 100000
+define ConstantanTempMin 1000
+define ConstantanTempMax 10000
+define ConstantanFuelPress 7500
+
+# Solder
+define SolderPressMin 1000
+define SolderPressMax 100000
+define SolderTempMin 350
+define SolderTempMax 550
+define SolderFuelPress 45
+
+# Astroloy
+define AstroloyPressMin 30000
+define AstroloyPressMax 40000
+define AstroloyTempMin 1000
+define AstroloyTempMax 100000
+define AstroloyFuelPress 7500
+
+# Hastelloy # NEEDS PRESSURANT
+define HasteloyPressMin 25000
+define HasteloyPressMax 30000
+define HasteloyTempMin 950
+define HasteloyTempMax 1000
+
+# Inconel
+define InconelPressMin 23500
+define InconelPressMax 24000
+define InconelTempMin 600
+define InconelTempMax 100000
+define InconelFuelPress 8500
+
+# Waspaloy # NEEDS PRESSURANT
+define WaspaloyPressMin 50000
+define WaspaloyPressMax 100000
+define WaspaloyTempMin 400
+define WaspaloyTempMax 800
+
+# Stellite
+define StellitePressMin 10000
+define StellitePressMax 20000
+define StelliteTempMin 1800
+define StelliteTempMax 100000
+define StelliteFuelPress 4500
+
+alias fuelPress r9
+alias tempMin r10
+alias tempMax r11
+alias pressMin r12
+alias pressMax r13
+
+alias SelectedRecipe r15
+define OreProcessingFuel 15
+
+# * User picks recipe on dial
+# * User Flips Auto Furnace Switch On
+# * User starts to add ore into furnace
+# * Once the user is done putting in ores they will flick the OreReadySwitch
+# * User waits for ingot to come out of furnace
+
+WaitAutoFurnaceSwitch:
+  l AutoFurnaceSwitchState AutoFurnaceSwitch Open
+  s Furnace On 1 # Turn furnace on
+  s Furnace Open 0 # Close ingot eject
+  s Furnace SettingOutput 0 # Furnace output off
+  s Furnace SettingInput 0 # Furnace input off
+  s Furnace Activate 0
+  bnez AutoFurnaceSwitchState getRecipe # If switch is on then getRecipe
+  j WaitAutoFurnaceSwitch
+
+getRecipe:
+l SelectedRecipe RecipeSelectionDial Setting
+beq SelectedRecipe RECIPE_SILICON loadSilicon
+beq SelectedRecipe RECIPE_IRON loadIron
+beq SelectedRecipe RECIPE_GOLD loadGold
+beq SelectedRecipe RECIPE_COPPER loadCopper
+beq SelectedRecipe RECIPE_SILVER loadSilver
+beq SelectedRecipe RECIPE_LEAD loadLead
+beq SelectedRecipe RECIPE_NICKEL loadNickel
+beq SelectedRecipe RECIPE_STEEL loadSteel
+beq SelectedRecipe RECIPE_ELECTRUM loadElectrum
+# beq SelectedRecipe RECIPE_INVAR loadInvar
+beq SelectedRecipe RECIPE_CONSTANTAN loadConstantan
+beq SelectedRecipe RECIPE_SOLDER loadSolder
+beq SelectedRecipe RECIPE_ASTROLOY loadAstroloy
+#beq SelectedRecipe RECIPE_HASTELLOY loadHastelloy
+beq SelectedRecipe RECIPE_INCONEL loadInconel
+# beq SelectedRecipe RECIPE_WASPALOY loadWaspaloy
+beq SelectedRecipe RECIPE_STELLITE loadStellite
+j WaitAutoFurnaceSwitch # Unknown Recipe so goto WaitAutoFurnaceSwitch
+
+loadSilicon:
+  move tempMin SiliconTempMin
+  move tempMax SiliconTempMax
+  move pressMin SiliconPressMin
+  move pressMax SiliconPressMax
+  move fuelPress SiliconFuelPress
+  j FuelOreProcessing
+
+loadIron:
+  move tempMin IronTempMin
+  move tempMax IronTempMax
+  move pressMin IronPressMin
+  move pressMax IronPressMax
+  move fuelPress IronFuelPress
+  j FuelOreProcessing
+
+loadGold:
+  move tempMin GoldTempMin
+  move tempMax GoldTempMax
+  move pressMin GoldPressMin
+  move pressMax GoldPressMax
+  move fuelPress GoldFuelPress
+  j FuelOreProcessing
+
+loadCopper:
+  move tempMin CopperTempMin
+  move tempMax CopperTempMax
+  move pressMin CopperPressMin
+  move pressMax CopperPressMax
+  move fuelPress CopperFuelPress
+  j FuelOreProcessing
+
+loadSilver:
+  move tempMin SilverTempMin
+  move tempMax SilverTempMax
+  move pressMin SilverPressMin
+  move pressMax SilverPressMax
+  move fuelPress SilverFuelPress
+  j FuelOreProcessing
+
+loadLead:
+  move tempMin LeadTempMin
+  move tempMax LeadTempMax
+  move pressMin LeadPressMin
+  move pressMax LeadPressMax
+  move fuelPress LeadFuelPress
+  j FuelOreProcessing
+
+loadNickel:
+  move tempMin NickelTempMin
+  move tempMax NickelTempMax
+  move pressMin NickelPressMin
+  move pressMax NickelPressMax
+  move fuelPress NickelFuelPress
+  j FuelOreProcessing
+
+loadSteel:
+  move tempMin SteelTempMin
+  move tempMax SteelTempMax
+  move pressMin SteelPressMin
+  move pressMax SteelPressMax
+  move fuelPress SteelFuelPress
+  j FuelOreProcessing
+
+loadElectrum:
+  move tempMin ElectrumTempMin
+  move tempMax ElectrumTempMax
+  move pressMin ElectrumPressMin
+  move pressMax ElectrumPressMax
+  move fuelPress ElectrumFuelPress
+  j FuelOreProcessing
+
+loadInvar:
+  move tempMin InvarTempMin
+  move tempMax InvarTempMax
+  move pressMin InvarPressMin
+  move pressMax InvarPressMax
+  j FuelOreProcessing
+
+loadConstantan:
+  move tempMin ConstantanTempMin
+  move tempMax ConstantanTempMax
+  move pressMin ConstantanPressMin
+  move pressMax ConstantanPressMax
+  move fuelPress ConstantanFuelPress
+  j FuelOreProcessing
+
+loadSolder:
+  move tempMin SolderTempMin
+  move tempMax SolderTempMax
+  move pressMin SolderPressMin
+  move pressMax SolderPressMax
+  move fuelPress SolderFuelPress
+  j FuelOreProcessing
+
+loadAstroloy:
+  move tempMin AstroloyTempMin
+  move tempMax AstroloyTempMax
+  move pressMin AstroloyPressMin
+  move pressMax AstroloyPressMax
+  move fuelPress AstroloyFuelPress
+  j FuelOreProcessing
+
+loadHastelloy:
+  move tempMin HasteloyTempMin
+  move tempMax HasteloyTempMax
+  move pressMin HasteloyPressMin
+  move pressMax HasteloyPressMax
+  j FuelOreProcessing
+
+loadInconel:
+  move tempMin InconelTempMin
+  move tempMax InconelTempMax
+  move pressMin InconelPressMin
+  move pressMax InconelPressMax
+  move fuelPress InconelFuelPress
+  j FuelOreProcessing
+
+loadWaspaloy:
+  move tempMin WaspaloyTempMin
+  move tempMax WaspaloyTempMax
+  move pressMin WaspaloyPressMin
+  move pressMax WaspaloyPressMax
+  j FuelOreProcessing
+
+loadStellite:
+  move tempMin StelliteTempMin
+  move tempMax StelliteTempMax
+  move pressMin StellitePressMin
+  move pressMax StellitePressMax
+  move fuelPress StelliteFuelPress
+  j FuelOreProcessing
+
+FuelOreProcessing: # Add small amount of fuel to furnace for ore processing the amount of fuel will be >= OreProcessingFuel
+  s Furnace SettingInput 10 # Turn on Furnace Input at 10L
+  l FurnacePres Furnace Pressure # Get Furnace Pressure
+  blt FurnacePres OreProcessingFuel FuelOreProcessing # Wait For pressure to be reached
+  s Furnace Activate 1 # Activate Furnace
+  s Furnace SettingInput 0 # Turn off Furnace Input
+  l OreReadySwitchState OreReadySwitch Open
+  beqz OreReadySwitchState FuelOreProcessing # Check if OreReadySwitch wasnt flipped if not FuelOreProcessing
+  j WaitOreProcessing # Check if ore is done processing
+
+RegPressOreProc: # Regulate pressure in furnace as WaitOreProcessing
+  l FurnacePres Furnace Pressure
+  blt FurnacePres 25000 WaitOreProcessing # If Pressure is below 25000 kPa then WaitOreProcessing
+  s Furnace SettingOutput 30 # Release pressure at 30L
+  bge FurnacePres 30000 RegPressOreProc # If Pressure goes above 30000 kPa then RegPressOreProc
+j WaitOreProcessing
+
+DumpFurnaceOreGas: # Dump basically all the gas from the processed ore
+  s Furnace SettingOutput 20 # Turn on Furnace Ouput at 20L
+  l FurnacePres Furnace Pressure # Get furnace pressure
+  bgt FurnacePres 0.1 DumpFurnaceOreGas # Wait for Furnace Pressure to be near 0
+  s Furnace SettingOutput 0 # Turn off FurnaceOuput
+j FuelIngotProcessing
+
+WaitOreProcessing:
+s Furnace SettingOutput 0
+l r3 Furnace Reagents
+sleep 2
+l r4 Furnace Reagents
+bne r3 r4 RegPressOreProc
+bne r4 0 DumpFurnaceOreGas
+j WaitOreProcessing
+
+FuelIngotProcessing: # Fill up furnace to the correct fuel pressure for the ingot recipe
+  s Furnace SettingInput 5 # Turn on FurnaceInput at 5L
+  l FurnacePres Furnace Pressure # Get furnace pressure
+  blt FurnacePres fuelPress FuelIngotProcessing # Wait For fuel pressure in furnace to be reached
+  s Furnace SettingInput 0 # Turn off FurnaceInput
+  s Furnace Activate 1 # Activate Furnace
+
+j FurnaceRecipeMet
+
+FurnaceRecipeMet:
+  l FurnacePres Furnace Pressure
+  l FurnaceTemp Furnace Temperature
+
+  sge r3 FurnaceTemp tempMin # r3 = 1 if FurnaceTemp >= tempMin, else 0
+  sle r4 FurnaceTemp tempMax # r4 = 1 if FurnaceTemp <= tempMax, else 0
+  and r3 r3 r4 # r3 = 1 only if BOTH above are true (temp in range)
+
+  sge r4 FurnacePres pressMin # r4 = 1 if FurnacePres >= pressMin, else 0
+  sle r5 FurnacePres pressMax # r5 = 1 if FurnacePres <= pressMax, else 0
+  and r4 r4 r5 # r4 = 1 only if BOTH above are true (pressure in range)
+
+  and r3 r3 r4 # r3 = 1 only if temp AND pressure are both in range
+
+  yield
+
+  beqz r3 FurnaceRecipeMet
+
+  s Furnace Open 1 # Recipe was met so dump ingot on ground
+
+  j DumpIngotGas
+
+DumpIngotGas: # Dump Gasses from ingot processing
+  s Furnace SettingOutput 20 # Turn on FurnaceOuput at 20L
+  l FurnacePres Furnace Pressure # Get furnace pressure
+  bgt FurnacePres 0.1 DumpIngotGas # Wait for Furnace Pressure to be near 0
+  s Furnace SettingOutput 0 # Turn off FurnaceOuput
+j Reset
+
+Reset: # Reset devices back to off
+  s AutoFurnaceSwitch Open 0
+  s OreReadySwitch Open 0
+
+  j WaitAutoFurnaceSwitch
