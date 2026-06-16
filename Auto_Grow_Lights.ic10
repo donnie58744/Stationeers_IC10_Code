@@ -1,0 +1,39 @@
+# d0/r0 Daylight Sensor/Irridance
+# d1/r1 Grow Light/On
+# r2 Wait For Light After Day (sec)
+# r3 Light On Time (sec)
+
+# Turn Light Off At First
+s d1 On 0
+
+move r2 300
+move r3 60
+
+Start:
+# Update r0
+l r0 d0 SolarIrradiance
+
+# If no sun turn light on
+beq r0 0 lightON
+
+j Start
+
+lightOFF:
+# Update r0
+l r0 d0 SolarIrradiance
+# Turn Off Light
+s d1 On 0
+# Check if Sun if So goto start
+bgt r0 0 Start
+# Stay in this loop until sun
+j lightOFF
+
+lightON:
+# Wait x Secs to turn light on
+sleep r2
+# Light On
+s d1 On 1
+# Leave Light On For x Seconds
+sleep r3
+# Goto light off
+j lightOFF

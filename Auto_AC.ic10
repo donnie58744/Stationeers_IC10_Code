@@ -1,0 +1,31 @@
+# r0 Base Temp (C)
+# r1 AC Setting Temp (C)
+# r2 Max Indoor Temp (C)
+add r1 24 273.15
+move r2 29
+
+s db Setting r1
+Start:
+# Get Base Temp
+l r0 db TemperatureInput
+sub r0 r0 273.15
+
+# Get AC Setting Temp
+l r1 db Setting
+sub r1 r1 273.15
+
+# AC Setting - Off Offset
+add r1 r1 1
+
+bgt r0 r2 acON
+blt r0 r1 acOFF
+
+j Start
+
+acOFF:
+s db Mode 0
+j Start
+
+acON:
+s db Mode 1
+j Start

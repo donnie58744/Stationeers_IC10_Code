@@ -1,0 +1,55 @@
+s d0 On 1
+s d1 On 1
+s d1 Mode 7
+sb HASH("StructureKlaxon") Volume 100
+s d3 On 0
+Start:
+# d0 -&gt; WeatherStation(Logic Transmitter, only sending next weather time)
+# d1 -&gt; Display
+# d2 -&gt; Speaker
+# d3 -&gt; Lights
+# Get Next Storm Time in sec (r0)
+l r0 d0 Setting
+
+# Set Screen To Next Storm Time in sec
+s d1 Setting r0
+
+# If time is 0 or &lt;, then no weather or storm time is currently happening
+ble r0 0 NoWeather
+# If time is &gt; 61 then first warning
+bge r0 65 FirstWarnWeatherIncoming
+# If time is &gt; 31 then One min warning
+bge r0 31 OneMinWeatherWarning
+# If time is &lt; 30 then half minute warning
+ble r0 30 HalfMinWeatherWarning
+
+j Start
+
+FirstWarnWeatherIncoming:
+sb HASH("StructureKlaxon") On 1
+sb HASH("StructureKlaxon") SoundAlert 18
+s d3 On 1
+sleep 1
+sb HASH("StructureKlaxon") On 0
+j Start
+
+OneMinWeatherWarning:
+sb HASH("StructureKlaxon") On 1
+sb HASH("StructureKlaxon") SoundAlert 29
+s d3 On 1
+sleep 1
+sb HASH("StructureKlaxon") On 0
+j Start
+
+HalfMinWeatherWarning:
+sb HASH("StructureKlaxon") On 1
+sb HASH("StructureKlaxon") SoundAlert 16
+s d3 On 1
+sleep 2
+sb HASH("StructureKlaxon") On 0
+j Start
+
+NoWeather:
+sb HASH("StructureKlaxon") On 0
+s d3 On 0
+j Start

@@ -1,0 +1,21 @@
+alias Sensor d1
+
+alias SensorState r1
+
+Start:
+l SensorState Sensor Quantity # Get amt of ppl in room
+
+bgt SensorState 0 LightOn # If ppl in room is &gt; 0 Then goto LightOn
+beq SensorState 0 LightOff # If ppl in room is = 0 Then goto LightOff
+yield
+j Start # Goto Start
+
+LightOn:
+sb HASH("StructureLightLongWide") On 1 # Turn Light On
+yield
+j Start # Goto Start
+
+LightOff:
+sb HASH("StructureLightLongWide") On 0 # Turn Light Off
+yield
+j Start # Goto Start
