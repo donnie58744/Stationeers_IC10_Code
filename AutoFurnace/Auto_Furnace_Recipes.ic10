@@ -48,29 +48,29 @@ define CopperFuelPress 200
 define CopperRecipeHash -404336834
 
 # Silver Ingot
-define SilverFuelPress 300
+define SilverFuelPress 200
 define SilverRecipeHash -929742000
 
 # Lead Ingot
-define LeadFuelPress 300
+define LeadFuelPress 200
 define LeadRecipeHash 2134647745
 
 # Nickel Ingot
-define NickelFuelPress 300
+define NickelFuelPress 200
 define NickelRecipeHash -1406385572
 
 # Steel Ingot
-define SteelFuelPress 2700
+define SteelFuelPress 200
 define SteelRecipeHash -654790771
 
 # Electrum Ingot
-define ElectrumFuelPress 250
+define ElectrumFuelPress 75
 define ElectrumRecipeHash 502280180
 
 # Invar Ingot # NEEDS PRESSURANT
 
 # Constantan Ingot
-define ConstantanFuelPress 7500
+define ConstantanFuelPress 1000
 define ConstantanRecipeHash 1058547521
 
 # Solder Ingot
@@ -78,19 +78,19 @@ define SolderFuelPress 45
 define SolderRecipeHash -82508479
 
 # Astroloy Ingot
-define AstroloyFuelPress 7500
+define AstroloyFuelPress 1300
 define AstroloyRecipeHash 412924554
 
 # Hastelloy Ingot # NEEDS PRESSURANT
 
 # Inconel Ingot
-define InconelFuelPress 8500
+define InconelFuelPress 1300
 define InconelRecipeHash -787796599
 
 # Waspaloy Ingot # NEEDS PRESSURANT
 
 # Stellite Ingot
-define StelliteFuelPress 4500
+define StelliteFuelPress 900
 define StelliteRecipeHash -1897868623
 
 getRecipe:
