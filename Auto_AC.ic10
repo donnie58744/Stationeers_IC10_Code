@@ -1,5 +1,6 @@
 # Devices
 alias ThermDial d1
+alias GasSensor d0
 
 # Vars
 alias BaseTemp r0
@@ -10,17 +11,17 @@ alias MinBaseTemp r3
 Start:
   l ThermDialSetting ThermDial Setting # Get value of Thermostat Dial (C)
   add MinBaseTemp ThermDialSetting 1 # Min Base Temp = Therm Dial Setting +1 (C)
-  add MaxBaseTemp ThermDialSetting 5 # Max Base Temp = +X (C) Therm Dial Setting
+  add MaxBaseTemp ThermDialSetting 3 # Max Base Temp = +X (C) Therm Dial Setting
 
   add ThermDialSetting ThermDialSetting 273.15 # Convert Dial setting to (K)
   add MinBaseTemp MinBaseTemp 273.15 # Convert Min Base Temp to (K)
   add MaxBaseTemp MaxBaseTemp 273.15 # Convert Max Base Temp to (K)
-  
-  s db Setting ThermDialSetting # Set AC to dial setting (K)
-  l BaseTemp db TemperatureInput # Base Temp in K
 
-  bge BaseTemp MaxBaseTemp acOn # If Base Temp is >= to Max Base Temp then turn on ac
-  ble BaseTemp MinBaseTemp acOff # If Base Temp is <= to Min Base Temp then turn off ac
+  s db Setting ThermDialSetting # Set AC to dial setting (K)
+  l BaseTemp GasSensor Temperature # Base Temp in K
+
+  bge BaseTemp MaxBaseTemp acOn # If Base Temp is &gt;= to Max Base Temp then turn on ac
+  ble BaseTemp MinBaseTemp acOff # If Base Temp is &lt;= to Min Base Temp then turn off ac
 
   yield
 j Start
