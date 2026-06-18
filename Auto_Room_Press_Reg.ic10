@@ -1,0 +1,28 @@
+alias GasSensor d0
+alias VolumePump d1
+alias PressureDial d2
+
+alias RoomPressure r0
+alias SetRoomPressureOffset r1
+alias RoomPressureDialSetting r2
+
+s VolumePump Setting 10 # Set Volume pump to x kPa
+
+Start:
+l RoomPressureDialSetting PressureDial Setting
+
+l RoomPressure GasSensor Pressure
+
+sub SetRoomPressureOffset RoomPressureDialSetting 3
+blt RoomPressure SetRoomPressureOffset StartPump
+bge RoomPressure RoomPressureDialSetting StopPump
+
+j Start
+
+StartPump:
+s VolumePump On 1
+j Start
+
+StopPump:
+s VolumePump On 0
+j Start
