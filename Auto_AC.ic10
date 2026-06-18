@@ -1,31 +1,36 @@
-# r0 Base Temp (C)
-# r1 AC Setting Temp (C)
-# r2 Max Indoor Temp (C)
-add r1 24 273.15
-move r2 29
+# Devices
+alias ThermDial d1
 
-s db Setting r1
+# Vars
+alias BaseTemp r0
+alias ThermDialSetting r1
+alias MaxBaseTemp r2
+alias MinBaseTemp r3
+
 Start:
-# Get Base Temp
-l r0 db TemperatureInput
-sub r0 r0 273.15
+  l ThermDialSetting ThermDial Setting # Get value of Thermostat Dial (C)
+  add MinBaseTemp ThermDialSetting 1 # Min Base Temp = Therm Dial Setting +1 (C)
+  add MaxBaseTemp ThermDialSetting 5 # Max Base Temp = +X (C) Therm Dial Setting
 
-# Get AC Setting Temp
-l r1 db Setting
-sub r1 r1 273.15
+  add ThermDialSetting ThermDialSetting 273.15 # Convert Dial setting to (K)
+  add MinBaseTemp MinBaseTemp 273.15 # Convert Min Base Temp to (K)
+  add MaxBaseTemp MaxBaseTemp 273.15 # Convert Max Base Temp to (K)
+  
+  s db Setting ThermDialSetting # Set AC to dial setting (K)
+  l BaseTemp db TemperatureInput # Base Temp in K
 
-# AC Setting - Off Offset
-add r1 r1 1
+  bge BaseTemp MaxBaseTemp acOn # If Base Temp is >= to Max Base Temp then turn on ac
+  ble BaseTemp MinBaseTemp acOff # If Base Temp is <= to Min Base Temp then turn off ac
 
-bgt r0 r2 acON
-blt r0 r1 acOFF
-
+  yield
 j Start
 
-acOFF:
-s db Mode 0
+acOn:
+  s db Mode 1
+  yield
 j Start
 
-acON:
-s db Mode 1
+acOff:
+  s db Mode 0
+  yield
 j Start
