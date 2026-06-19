@@ -1,7 +1,7 @@
 alias Furnace d0
 alias FurnacePress r0
 
-define FurnacePressureSafteyLimit 60000
+define FurnacePressureSafteyLimit 55000
 
 Start:
   l FurnacePress Furnace Pressure

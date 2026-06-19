@@ -2,9 +2,9 @@
 
 # Devices
 alias Furnace d0
-alias OreReadySwitch d1
-alias RecipeSelectionHashMemory d2
-alias RecipeSelectionFuelPressMemory d3
+alias StatLED d1
+alias HashMemRecipeSelection d2
+alias FuelPressMemRecipeSelection d3
 alias AutoFurnaceSwitch d4
 
 # Vars
@@ -12,7 +12,6 @@ alias FurnacePres r0 # furnace pressure in (kPa)
 alias FurnaceTemp r1 # furnace temp in (k)
 alias FurnaceRecipeHash r7 # Current Furnace Recipe Hash
 alias AutoFurnaceSwitchState r2 # State of AutoFurnaceSwitch
-alias OreReadySwitchState r6 # State of OreReadyButton
 alias fuelPress r14 # Required Fuel Pressure For Recipe
 alias recipeHash r15 # Required Recipe Hash For Recipe
 define OreProcessingFuel 100
@@ -20,11 +19,12 @@ define OreProcessingFuel 100
 # * User picks recipe on dial
 # * User Flips Auto Furnace Switch On
 # * User starts to add ore into furnace
-# * Once the user has put some ores in they will flick the OreReadySwitch
 # * User waits for ingot to come out of furnace
 
 WaitAutoFurnaceSwitch:
   l AutoFurnaceSwitchState AutoFurnaceSwitch Open
+  s StatLED On 1 # Turn on status light
+  s StatLED Color 2 # Set status light color to green
   s Furnace On 1 # Turn furnace on
   s Furnace Open 0 # Close ingot eject
   s Furnace SettingOutput 0 # Furnace output off
@@ -35,8 +35,9 @@ WaitAutoFurnaceSwitch:
 j WaitAutoFurnaceSwitch
 
 loadRecipeMem:
-  l fuelPress RecipeSelectionFuelPressMemory Setting
-  l recipeHash RecipeSelectionHashMemory Setting
+  s StatLED Color 4 # Set status light color to red
+  l fuelPress FuelPressMemRecipeSelection Setting
+  l recipeHash HashMemRecipeSelection Setting
 j FuelOreProcessing
 
 FuelOreProcessing: # Add small amount of fuel to furnace for ore processing the amount of fuel will be >= OreProcessingFuel
@@ -45,8 +46,7 @@ FuelOreProcessing: # Add small amount of fuel to furnace for ore processing the 
   blt FurnacePres OreProcessingFuel FuelOreProcessing # Wait For pressure to be reached
   s Furnace Activate 1 # Activate Furnace
   s Furnace SettingInput 0 # Turn off Furnace Input
-  l OreReadySwitchState OreReadySwitch Open
-  beqz OreReadySwitchState FuelOreProcessing # Check if OreReadySwitch wasnt flipped if not FuelOreProcessing
+  yield
 j WaitOreProcessing # Check if ore is done processing
 
 RegPressOreProc: # Regulate pressure in furnace as WaitOreProcessing
@@ -57,7 +57,7 @@ RegPressOreProc: # Regulate pressure in furnace as WaitOreProcessing
 j WaitOreProcessing
 
 DumpFurnaceOreGas: # Dump basically all the gas from the processed ore
-  s Furnace SettingOutput 50 # Turn on Furnace Ouput at 20L
+  s Furnace SettingOutput 80 # Turn on Furnace Ouput at xL
   l FurnacePres Furnace Pressure # Get furnace pressure
   bgt FurnacePres 5 DumpFurnaceOreGas # Wait for Furnace Pressure to be near 0
   s Furnace SettingOutput 0 # Turn off FurnaceOuput
@@ -66,14 +66,14 @@ j FuelIngotProcessing
 WaitOreProcessing:
   s Furnace SettingOutput 0
   l r3 Furnace Reagents
-  sleep 5
+  sleep 15
   l r4 Furnace Reagents
   bne r3 r4 RegPressOreProc
   bne r4 0 DumpFurnaceOreGas
 j WaitOreProcessing
 
 FuelIngotProcessing: # Fill up furnace to the correct fuel pressure for the ingot recipe
-  s Furnace SettingInput 10 # Turn on FurnaceInput at 10L
+  s Furnace SettingInput 10 # Turn on FurnaceInput at xL
   l FurnacePres Furnace Pressure # Get furnace pressure
   blt FurnacePres fuelPress FuelIngotProcessing # Wait For fuel pressure in furnace to be reached
   s Furnace SettingInput 0 # Turn off FurnaceInput
@@ -88,7 +88,7 @@ FurnaceRecipeMet:
 j DumpIngotGas
 
 DumpIngotGas: # Dump Gasses from ingot processing
-  s Furnace SettingOutput 50 # Turn on FurnaceOuput at 50L
+  s Furnace SettingOutput 80 # Turn on FurnaceOuput at xL
   l FurnacePres Furnace Pressure # Get furnace pressure
   bgt FurnacePres 5 DumpIngotGas # Wait for Furnace Pressure to be near 0
   s Furnace SettingOutput 0 # Turn off FurnaceOuput
@@ -96,5 +96,5 @@ j Reset
 
 Reset: # Reset devices back to off
   s AutoFurnaceSwitch Open 0
-  s OreReadySwitch Open 0
+  yield
 j WaitAutoFurnaceSwitch
