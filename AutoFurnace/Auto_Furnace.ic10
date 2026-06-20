@@ -14,7 +14,7 @@ alias FurnaceRecipeHash r7 # Current Furnace Recipe Hash
 alias AutoFurnaceSwitchState r2 # State of AutoFurnaceSwitch
 alias fuelPress r14 # Required Fuel Pressure For Recipe
 alias recipeHash r15 # Required Recipe Hash For Recipe
-define OreProcessingFuel 100
+define OreProcessingFuel 500
 
 # * User picks recipe on dial
 # * User Flips Auto Furnace Switch On
@@ -49,13 +49,6 @@ FuelOreProcessing: # Add small amount of fuel to furnace for ore processing the 
   yield
 j WaitOreProcessing # Check if ore is done processing
 
-RegPressOreProc: # Regulate pressure in furnace as WaitOreProcessing
-  l FurnacePres Furnace Pressure
-  blt FurnacePres 25000 WaitOreProcessing # If Pressure is below 25000 kPa then WaitOreProcessing
-  s Furnace SettingOutput 30 # Release pressure at 30L
-  bge FurnacePres 30000 RegPressOreProc # If Pressure goes above 30000 kPa then RegPressOreProc
-j WaitOreProcessing
-
 DumpFurnaceOreGas: # Dump basically all the gas from the processed ore
   s Furnace SettingOutput 80 # Turn on Furnace Ouput at xL
   l FurnacePres Furnace Pressure # Get furnace pressure
@@ -68,7 +61,7 @@ WaitOreProcessing:
   l r3 Furnace Reagents
   sleep 15
   l r4 Furnace Reagents
-  bne r3 r4 RegPressOreProc
+  bne r3 r4 WaitOreProcessing
   bne r4 0 DumpFurnaceOreGas
 j WaitOreProcessing
 
@@ -85,7 +78,10 @@ FurnaceRecipeMet:
   yield
   bne FurnaceRecipeHash recipeHash FurnaceRecipeMet
   s Furnace Open 1
-j DumpIngotGas
+  l r3 Furnace Reagents
+  beqz r3 DumpIngotGas # Wait for there to be no reagents in furnace then DumpIngotGas
+  yield
+j FurnaceRecipeMet
 
 DumpIngotGas: # Dump Gasses from ingot processing
   s Furnace SettingOutput 80 # Turn on FurnaceOuput at xL

@@ -1,0 +1,30 @@
+# Devices
+alias RecipeSelectionDial d0
+alias HashMemRecipeSelection d1
+alias FuelPressMemRecipeSelection d2
+# Vars
+alias fuelPress r9
+alias recipeHash r10
+alias SelectedRecipe r15
+
+define RECIPE_INVAR 14
+
+define InvarFuelPress 1300
+define InvarRecipeHash -297990285
+
+getRecipe:
+  l SelectedRecipe RecipeSelectionDial Setting
+  beq SelectedRecipe RECIPE_INVAR loadInvar
+  yield
+j getRecipe # Unknown Recipe so goto WaitAutoFurnaceSwitch
+
+loadInvar:
+  move fuelPress InvarFuelPress
+  move recipeHash InvarRecipeHash
+j LoadInMem
+
+LoadInMem:
+  s FuelPressMemRecipeSelection Setting fuelPress
+  s HashMemRecipeSelection Setting recipeHash
+  yield
+j getRecipe

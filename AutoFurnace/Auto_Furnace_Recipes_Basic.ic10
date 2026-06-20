@@ -20,7 +20,7 @@ define RECIPE_SOLDER 10
 define RECIPE_ASTROLOY 11
 define RECIPE_INCONEL 12
 define RECIPE_STELLITE 13
-define BasicIngotFuelPress 200
+define BasicIngotFuelPress 300
 
 define SiliconRecipeHash -290196476
 define IronRecipeHash -1301215609
@@ -32,13 +32,13 @@ define NickelRecipeHash -1406385572
 define SteelRecipeHash -654790771
 define ElectrumFuelPress 75
 define ElectrumRecipeHash 502280180
-define ConstantanFuelPress 1000
+define ConstantanFuelPress 1600
 define ConstantanRecipeHash 1058547521
 define SolderFuelPress 45
 define SolderRecipeHash -82508479
-define AstroloyFuelPress 1300
+define AstroloyFuelPress 1600
 define AstroloyRecipeHash 412924554
-define InconelFuelPress 1300
+define InconelFuelPress 1600
 define InconelRecipeHash -787796599
 define StelliteFuelPress 900
 define StelliteRecipeHash -1897868623
