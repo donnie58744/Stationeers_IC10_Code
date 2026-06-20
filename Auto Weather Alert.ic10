@@ -1,4 +1,6 @@
-s d0 On 1
+alias WeatherStation d0
+
+s WeatherStation On 1
 sb HASH("StructureConsoleLED1x3") On 1
 sb HASH("StructureConsoleLED1x3") Mode 7
 sb HASH("StructureKlaxon") Volume 100
@@ -9,7 +11,7 @@ Start:
 # d2 -&gt; Speaker
 # d3 -&gt; Lights
 # Get Next Storm Time in sec (r0)
-l r0 d0 Setting
+l r0 WeatherStation NextWeatherEventTime
 
 # Set Screen To Next Storm Time in sec
 sb HASH("StructureConsoleLED1x3") Setting r0
