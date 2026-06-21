@@ -20,7 +20,7 @@ define RECIPE_SOLDER 10
 define RECIPE_ASTROLOY 11
 define RECIPE_INCONEL 12
 define RECIPE_STELLITE 13
-define BasicIngotFuelPress 300
+define BasicIngotFuelPress 600
 
 define SiliconRecipeHash -290196476
 define IronRecipeHash -1301215609
