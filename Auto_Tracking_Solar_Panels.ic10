@@ -1,0 +1,34 @@
+lb r0 HASH("StructureSolarPanelDual") Horizontal 1
+Start:
+# Update Vars
+l r1 d1 Vertical
+l r2 d1 Horizontal
+l r3 d1 SolarIrradiance
+
+# Offset Tracking
+mul r1 r1 -1
+sub r1 r1 -90
+
+# Offset Night
+# Verticle
+move r4 10
+# Horizontal
+move r5 0
+
+bgt r3 0 Day
+beq r3 0 Night
+
+Day:
+sb HASH("StructureSolarPanelDual") Vertical r1
+sb HASH("StructureSolarPanelDualReinforced") Vertical r1
+sb HASH("StructureSolarPanelDual") Horizontal r2
+sb HASH("StructureSolarPanelDualReinforced") Horizontal r2
+j Start
+
+# If night then reset panels
+Night:
+sb HASH("StructureSolarPanelDual") Vertical r4
+sb HASH("StructureSolarPanelDualReinforced") Vertical r4
+sb HASH("StructureSolarPanelDual") Horizontal r5
+sb HASH("StructureSolarPanelDualReinforced") Horizontal r5
+j Start
