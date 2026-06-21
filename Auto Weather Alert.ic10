@@ -1,10 +1,11 @@
 alias WeatherStation d0
+alias LogicTransmitter d1
 
 s WeatherStation On 1
 sb HASH("StructureConsoleLED1x3") On 1
 sb HASH("StructureConsoleLED1x3") Mode 7
 sb HASH("StructureKlaxon") Volume 100
-s d3 On 0
+sb HASH("StructureFlashingLight") On 0
 Start:
 # d0 -&gt; WeatherStation(Logic Transmitter, only sending next weather time)
 # d1 -&gt; Display
@@ -12,6 +13,7 @@ Start:
 # d3 -&gt; Lights
 # Get Next Storm Time in sec (r0)
 l r0 WeatherStation NextWeatherEventTime
+s LogicTransmitter Setting r0
 
 # Set Screen To Next Storm Time in sec
 sb HASH("StructureConsoleLED1x3") Setting r0
@@ -30,7 +32,7 @@ j Start
 FirstWarnWeatherIncoming:
 sb HASH("StructureKlaxon") On 1
 sb HASH("StructureKlaxon") SoundAlert 18
-s d3 On 1
+sb HASH("StructureFlashingLight") On 1
 sleep 1
 sb HASH("StructureKlaxon") On 0
 j Start
@@ -38,7 +40,7 @@ j Start
 OneMinWeatherWarning:
 sb HASH("StructureKlaxon") On 1
 sb HASH("StructureKlaxon") SoundAlert 29
-s d3 On 1
+sb HASH("StructureFlashingLight") On 1
 sleep 1
 sb HASH("StructureKlaxon") On 0
 j Start
@@ -46,12 +48,12 @@ j Start
 HalfMinWeatherWarning:
 sb HASH("StructureKlaxon") On 1
 sb HASH("StructureKlaxon") SoundAlert 16
-s d3 On 1
+sb HASH("StructureFlashingLight") On 1
 sleep 2
 sb HASH("StructureKlaxon") On 0
 j Start
 
 NoWeather:
 sb HASH("StructureKlaxon") On 0
-s d3 On 0
+sb HASH("StructureFlashingLight") On 0
 j Start
