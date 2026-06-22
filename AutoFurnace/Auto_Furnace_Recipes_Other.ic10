@@ -8,13 +8,23 @@ alias recipeHash r10
 alias SelectedRecipe r15
 
 define RECIPE_INVAR 14
+define RECIPE_HASTELLOY 15
+define RECIPE_WASPALOY 16
+define DIAL_ROLLBACK 17
 
 define InvarFuelPress 1300
 define InvarRecipeHash -297990285
+define WaspaloyFuelPress 1800
+define WaspaloyRecipeHash 156348098
+define HastelloyFuelPress 1600
+define HastelloyRecipeHash 1579842814
 
 getRecipe:
   l SelectedRecipe RecipeSelectionDial Setting
   beq SelectedRecipe RECIPE_INVAR loadInvar
+  beq SelectedRecipe RECIPE_HASTELLOY loadHastelloy
+  beq SelectedRecipe RECIPE_WASPALOY loadWaspaloy
+  beq SelectedRecipe DIAL_ROLLBACK rollbackDial # Rollback dial to 0 if dial goes over max setting
   yield
 j getRecipe # Unknown Recipe so goto WaitAutoFurnaceSwitch
 
@@ -22,6 +32,20 @@ loadInvar:
   move fuelPress InvarFuelPress
   move recipeHash InvarRecipeHash
 j LoadInMem
+
+loadHastelloy:
+  move fuelPress HastelloyFuelPress
+  move recipeHash HastelloyRecipeHash
+j LoadInMem
+
+loadWaspaloy:
+  move fuelPress WaspaloyFuelPress
+  move recipeHash WaspaloyRecipeHash
+j LoadInMem
+
+rollbackDial:
+  s RecipeSelectionDial Setting 0
+j getRecipe
 
 LoadInMem:
   s FuelPressMemRecipeSelection Setting fuelPress

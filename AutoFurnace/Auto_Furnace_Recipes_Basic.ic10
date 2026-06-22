@@ -34,7 +34,7 @@ define ElectrumFuelPress 75
 define ElectrumRecipeHash 502280180
 define ConstantanFuelPress 1600
 define ConstantanRecipeHash 1058547521
-define SolderFuelPress 45
+define SolderFuelPress 200
 define SolderRecipeHash -82508479
 define AstroloyFuelPress 1600
 define AstroloyRecipeHash 412924554
