@@ -1,34 +1,41 @@
+alias DaylightSensor d0
+alias Vert r0
+alias Hori r1
+alias Irradiance r2
+alias NightVert r3
+alias NightHori r4
 lb r0 HASH("StructureSolarPanelDual") Horizontal 1
+
 Start:
 # Update Vars
-l r1 d1 Vertical
-l r2 d1 Horizontal
-l r3 d1 SolarIrradiance
+l Vert DaylightSensor Vertical
+l Hori DaylightSensor Horizontal
+l Irradiance DaylightSensor SolarIrradiance
 
 # Offset Tracking
-mul r1 r1 -1
-sub r1 r1 -90
+mul Vert Vert -1
+sub Vert Vert -90
 
 # Offset Night
 # Verticle
-move r4 10
+move NightVert 10
 # Horizontal
-move r5 0
+move NightHori 0
 
-bgt r3 0 Day
-beq r3 0 Night
+bgt Irradiance 0 Day
+beq Irradiance 0 Night
 
 Day:
-sb HASH("StructureSolarPanelDual") Vertical r1
-sb HASH("StructureSolarPanelDualReinforced") Vertical r1
-sb HASH("StructureSolarPanelDual") Horizontal r2
-sb HASH("StructureSolarPanelDualReinforced") Horizontal r2
+sb HASH("StructureSolarPanelDual") Vertical Vert
+sb HASH("StructureSolarPanelDualReinforced") Vertical Vert
+sb HASH("StructureSolarPanelDual") Horizontal Hori
+sb HASH("StructureSolarPanelDualReinforced") Horizontal Hori
 j Start
 
 # If night then reset panels
 Night:
-sb HASH("StructureSolarPanelDual") Vertical r4
-sb HASH("StructureSolarPanelDualReinforced") Vertical r4
-sb HASH("StructureSolarPanelDual") Horizontal r5
-sb HASH("StructureSolarPanelDualReinforced") Horizontal r5
+sb HASH("StructureSolarPanelDual") Vertical NightVert
+sb HASH("StructureSolarPanelDualReinforced") Vertical NightVert
+sb HASH("StructureSolarPanelDual") Horizontal NightHori
+sb HASH("StructureSolarPanelDualReinforced") Horizontal NightHori
 j Start
