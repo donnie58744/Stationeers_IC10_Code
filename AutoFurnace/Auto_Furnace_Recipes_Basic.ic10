@@ -1,0 +1,125 @@
+# Devices
+alias RecipeSelectionDial d0
+alias HashMemRecipeSelection d1
+alias FuelPressMemRecipeSelection d2
+# Vars
+alias fuelPress r9
+alias recipeHash r10
+alias SelectedRecipe r15
+define RECIPE_SILICON 0
+define RECIPE_IRON 1
+define RECIPE_GOLD 2
+define RECIPE_COPPER 3
+define RECIPE_SILVER 4
+define RECIPE_LEAD 5
+define RECIPE_NICKEL 6
+define RECIPE_STEEL 7
+define RECIPE_ELECTRUM 8
+define RECIPE_CONSTANTAN 9
+define RECIPE_SOLDER 10
+define RECIPE_ASTROLOY 11
+define RECIPE_INCONEL 12
+define RECIPE_STELLITE 13
+define BasicIngotFuelPress 600
+
+define SiliconRecipeHash -290196476
+define IronRecipeHash -1301215609
+define GoldRecipeHash 226410516
+define CopperRecipeHash -404336834
+define SilverRecipeHash -929742000
+define LeadRecipeHash 2134647745
+define NickelRecipeHash -1406385572
+define SteelRecipeHash -654790771
+define ElectrumFuelPress 75
+define ElectrumRecipeHash 502280180
+define ConstantanFuelPress 1600
+define ConstantanRecipeHash 1058547521
+define SolderFuelPress 200
+define SolderRecipeHash -82508479
+define AstroloyFuelPress 1600
+define AstroloyRecipeHash 412924554
+define InconelFuelPress 1600
+define InconelRecipeHash -787796599
+define StelliteFuelPress 900
+define StelliteRecipeHash -1897868623
+
+getRecipe:
+  l SelectedRecipe RecipeSelectionDial Setting
+  beq SelectedRecipe RECIPE_SILICON loadSilicon
+  beq SelectedRecipe RECIPE_IRON loadIron
+  beq SelectedRecipe RECIPE_GOLD loadGold
+  beq SelectedRecipe RECIPE_COPPER loadCopper
+  beq SelectedRecipe RECIPE_SILVER loadSilver
+  beq SelectedRecipe RECIPE_LEAD loadLead
+  beq SelectedRecipe RECIPE_NICKEL loadNickel
+  beq SelectedRecipe RECIPE_STEEL loadSteel
+  beq SelectedRecipe RECIPE_ELECTRUM loadElectrum
+  beq SelectedRecipe RECIPE_CONSTANTAN loadConstantan
+  beq SelectedRecipe RECIPE_SOLDER loadSolder
+  beq SelectedRecipe RECIPE_ASTROLOY loadAstroloy
+  beq SelectedRecipe RECIPE_INCONEL loadInconel
+  beq SelectedRecipe RECIPE_STELLITE loadStellite
+  yield
+j getRecipe # Unknown Recipe so goto WaitAutoFurnaceSwitch
+
+loadSilicon:
+  move fuelPress BasicIngotFuelPress
+  move recipeHash SiliconRecipeHash
+j LoadInMem
+loadIron:
+  move fuelPress BasicIngotFuelPress
+  move recipeHash IronRecipeHash
+j LoadInMem
+loadGold:
+  move fuelPress BasicIngotFuelPress
+  move recipeHash GoldRecipeHash
+j LoadInMem
+loadCopper:
+  move fuelPress BasicIngotFuelPress
+  move recipeHash CopperRecipeHash
+j LoadInMem
+loadSilver:
+  move fuelPress BasicIngotFuelPress
+  move recipeHash SilverRecipeHash
+j LoadInMem
+loadLead:
+  move fuelPress BasicIngotFuelPress
+  move recipeHash LeadRecipeHash
+j LoadInMem
+loadNickel:
+  move fuelPress BasicIngotFuelPress
+  move recipeHash NickelRecipeHash
+j LoadInMem
+loadSteel:
+  move fuelPress BasicIngotFuelPress
+  move recipeHash SteelRecipeHash
+j LoadInMem
+loadElectrum:
+  move fuelPress ElectrumFuelPress
+  move recipeHash ElectrumRecipeHash
+j LoadInMem
+loadConstantan:
+  move fuelPress ConstantanFuelPress
+  move recipeHash ConstantanRecipeHash
+j LoadInMem
+loadSolder:
+  move fuelPress SolderFuelPress
+  move recipeHash SolderRecipeHash
+j LoadInMem
+loadAstroloy:
+  move fuelPress AstroloyFuelPress
+  move recipeHash AstroloyRecipeHash
+j LoadInMem
+loadInconel:
+  move fuelPress InconelFuelPress
+  move recipeHash InconelRecipeHash
+j LoadInMem
+loadStellite:
+  move fuelPress StelliteFuelPress
+  move recipeHash StelliteRecipeHash
+j LoadInMem
+LoadInMem:
+  s FuelPressMemRecipeSelection Setting fuelPress
+  s HashMemRecipeSelection Setting recipeHash
+  yield
+j getRecipe

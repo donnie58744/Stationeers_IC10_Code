@@ -1,0 +1,17 @@
+alias Furnace d0
+alias FurnacePress r0
+
+define FurnacePressureSafteyLimit 55000
+
+Start:
+  l FurnacePress Furnace Pressure
+  bge FurnacePress FurnacePressureSafteyLimit PressureHigh
+  yield
+j Start
+
+PressureHigh:
+  s Furnace SettingOutput 50 # Turn on furnace output to dump gas at xL
+  l FurnacePress Furnace Pressure
+  bge FurnacePress FurnacePressureSafteyLimit PressureHigh
+  s Furnace SettingOutput 0
+j Start
