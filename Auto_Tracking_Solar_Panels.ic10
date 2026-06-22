@@ -4,7 +4,6 @@ alias Hori r1
 alias Irradiance r2
 alias NightVert r3
 alias NightHori r4
-lb r0 HASH("StructureSolarPanelDual") Horizontal 1
 
 Start:
 # Update Vars
