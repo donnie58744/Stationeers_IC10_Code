@@ -30,7 +30,7 @@ define SilverRecipeHash -929742000
 define LeadRecipeHash 2134647745
 define NickelRecipeHash -1406385572
 define SteelRecipeHash -654790771
-define ElectrumFuelPress 75
+define ElectrumFuelPress 100
 define ElectrumRecipeHash 502280180
 define ConstantanFuelPress 1600
 define ConstantanRecipeHash 1058547521
